@@ -29,7 +29,7 @@ const navigationItems = [
 ];
 
 const additionalItems = [
-  // { label: 'Upload Daily Reports', icon: Upload, path: '/upload-daily-reports' },
+  { label: 'Upload Daily Reports', icon: Upload, path: '/upload-daily-reports' },
   // { label: 'View/Download Reports', icon: Download, path: '/view-download-reports' },
 ];
 

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// UploadReportsHeader component
+import React from 'react';
 import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -7,16 +8,13 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { getPropertyWithRooms } from '../../constants/properties';
 
-const UploadReportsHeader = ({ selectedHotel }) => {
-  const [selectedDate, setSelectedDate] = useState(new Date());
-
+const UploadReportsHeader = ({ selectedHotel, selectedDate, onDateChange }) => {
   return (
     <div className="mb-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">
           {getPropertyWithRooms(selectedHotel)}
         </h1>
-        
         <Popover>
           <PopoverTrigger asChild>
             <Button
@@ -34,7 +32,7 @@ const UploadReportsHeader = ({ selectedHotel }) => {
             <Calendar
               mode="single"
               selected={selectedDate}
-              onSelect={(date) => date && setSelectedDate(date)}
+              onSelect={(date) => date && onDateChange(date)}
               initialFocus
               className={cn("p-3 pointer-events-auto")}
             />
