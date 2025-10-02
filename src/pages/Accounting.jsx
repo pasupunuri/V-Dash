@@ -36,7 +36,7 @@ const Accounting = ({ selectedHotel }) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <LedgerSummaryTable 
           selectedHotel={selectedHotel}
           selectedDate={selectedDate}
@@ -46,13 +46,13 @@ const Accounting = ({ selectedHotel }) => {
           selectedHotel={selectedHotel}
           selectedDate={selectedDate}
         />
-      </div>
+      </div> */}
 
       <BusinessDetails selectedDate={selectedDate} />
 
-      <TaxExemptDetail selectedDate={selectedDate} />
+      {/* <TaxExemptDetail selectedDate={selectedDate} /> */}
 
-      <RoomDetails selectedDate={selectedDate} />
+      {/* <RoomDetails selectedDate={selectedDate} /> */}
     </div>
   );
 };

@@ -25,7 +25,7 @@ const navigationItems = [
   // { label: 'Forecasting', icon: TrendingUp, path: '/forecasting' },
   // { label: 'Labor Analytics', icon: Users, path: '/labor-analytics' },
   // { label: 'On The Books', icon: BookOpen, path: '/on-the-books' },
-  // { label: 'Accounting', icon: Calculator, path: '/accounting' },
+  { label: 'Accounting', icon: Calculator, path: '/accounting' },
 ];
 
 const additionalItems = [
