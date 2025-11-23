@@ -23,6 +23,8 @@ import Forecasting from "@/pages/Forecasting";
 import LaborAnalytics from "@/pages/LaborAnalytics";
 import UploadDailyReports from "@/pages/UploadDailyReports";
 import ViewDownloadReports from "@/pages/ViewDownloadReports";
+import ManageUsers from "@/pages/ManageUsers";
+import InviteUser from "@/pages/InviteUser";
 import { usePropertyStore } from "@/store/propertyStore";
 
 const queryClient = new QueryClient();
@@ -113,6 +115,8 @@ function MainLayout() {
             <Route path="/on-the-books" element={<OnTheBooks />} />
             <Route path="/upload-daily-reports" element={<UploadDailyReports />} />
             <Route path="/view-download-reports" element={<ViewDownloadReports />} />
+            <Route path="/manage-users" element={<ManageUsers />} />
+            <Route path="/invite-user" element={<InviteUser />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>

@@ -70,13 +70,16 @@ const UserMenu = () => {
           {/* <hr className="my-1 border-gray-100" /> */}
 
           {/* Section 2 */}
-          {/* <button
+          <button
             className="w-full flex items-center gap-2 text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-            onClick={() => setShowDropdown(false)}
+            onClick={() => {
+              setShowDropdown(false);
+              navigate('/manage-users');
+            }}
           >
             User Management
           </button>
-          <button
+          {/* <button
             className="w-full flex items-center gap-2 text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
             onClick={() => setShowDropdown(false)}
           >

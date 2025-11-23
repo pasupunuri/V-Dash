@@ -1,6 +1,8 @@
 import { useAuthStore } from "./authStore";
+
+export const API_BASE_URL = '/api/';
 // export const API_BASE_URL = 'http://localhost:8000/api/';
-export const API_BASE_URL = 'https://urchin-app-dz8au.ondigitalocean.app/api/';
+// export const API_BASE_URL = 'https://urchin-app-dz8au.ondigitalocean.app/api/';
 
 // Safely parse response body as JSON or text (no throw on empty/invalid JSON)
 const parseResponseBody = async (response) => {
