@@ -42,9 +42,15 @@ const Login = () => {
       // Store token and user data
       const token = response.data?.access_token;
       const userData = response.data?.user;
-      
+
       login(token, userData);
-      navigate("/dashboard");
+
+      // Redirect based on role - employees go to upload page, others to dashboard
+      if (userData?.role === 'employee') {
+        navigate("/upload-daily-reports");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (err) {
       setError(err.message || "Login failed");
     } finally {

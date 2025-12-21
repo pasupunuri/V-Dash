@@ -20,8 +20,8 @@ import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/comp
 import { useAuthStore } from '@/store/authStore';
 
 const navigationItems = [
-  { label: 'Portfolio Dashboard', icon: BarChart3, path: '/dashboard' },
-  { label: 'Hotel Dashboard', icon: Building2, path: '/hotel-dashboard' },
+  { label: 'Portfolio Dashboard', icon: BarChart3, path: '/dashboard', allowedRoles: ['admin', 'super_admin'] },
+  { label: 'Hotel Dashboard', icon: Building2, path: '/hotel-dashboard', allowedRoles: ['admin', 'super_admin'] },
   // { label: 'Budgeting', icon: DollarSign, path: '/budgeting' },
   // { label: 'Forecasting', icon: TrendingUp, path: '/forecasting' },
   // { label: 'Labor Analytics', icon: Users, path: '/labor-analytics' },
@@ -30,8 +30,8 @@ const navigationItems = [
 ];
 
 const additionalItems = [
-  { label: 'Upload Daily Reports', icon: Upload, path: '/upload-daily-reports' },
-  // { label: 'View/Download Reports', icon: Download, path: '/view-download-reports' },
+  { label: 'Upload Daily Reports', icon: Upload, path: '/upload-daily-reports' },  // Available to all roles
+  // { label: 'View/Download Reports', icon: Download, path: '/view-download-reports' },  // Available to all roles
 ];
 
 const Sidebar = ({ isCollapsed, onToggleCollapse }) => {
@@ -152,12 +152,14 @@ const Sidebar = ({ isCollapsed, onToggleCollapse }) => {
         <TooltipProvider>
           <ul className="space-y-1">
             {filteredNavigationItems.map(renderNavigationItem)}
-            
-            {/* Separator Line */}
-            <li className="py-2">
-              <div className="border-t border-slate-700/50 mx-2" />
-            </li>
-            
+
+            {/* Separator Line - only show if there are navigation items above */}
+            {filteredNavigationItems.length > 0 && (
+              <li className="py-2">
+                <div className="border-t border-slate-700/50 mx-2" />
+              </li>
+            )}
+
             {additionalItems.map(renderNavigationItem)}
           </ul>
         </TooltipProvider>
