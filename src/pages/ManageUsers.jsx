@@ -34,10 +34,21 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { userApi } from '@/utils/userApi';
 import { api } from '@/store/api';
+import { useAuthStore } from '@/store/authStore';
+
+// Helper to display role nicely
+const formatRole = (role) => {
+  if (role === 'super_admin') return 'Super Admin';
+  if (role === 'admin') return 'Admin';
+  if (role === 'employee') return 'Employee';
+  return role || 'Employee';
+};
 
 const ManageUsers = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const currentUser = useAuthStore(state => state.user);
+  const isSuperAdmin = currentUser?.role === 'super_admin';
   const [searchQuery, setSearchQuery] = useState('');
   const [showEditUserDialog, setShowEditUserDialog] = useState(false);
   const [showAssignPropertiesDialog, setShowAssignPropertiesDialog] = useState(false);
@@ -287,7 +298,7 @@ const ManageUsers = () => {
                 </div>
 
                 <div className="col-span-2 flex items-center">
-                  <span className="text-sm text-gray-700 capitalize">{user.role || 'employee'}</span>
+                  <span className="text-sm text-gray-700">{formatRole(user.role)}</span>
                 </div>
 
                 <div className="col-span-2 flex items-center">
@@ -374,6 +385,7 @@ const ManageUsers = () => {
                   onChange={(e) => setEditFormData({ ...editFormData, role: e.target.value })}
                   className="w-full px-3 py-2 border rounded-md"
                 >
+                  {isSuperAdmin && <option value="super_admin">Super Admin</option>}
                   <option value="admin">Admin</option>
                   <option value="employee">Employee</option>
                 </select>

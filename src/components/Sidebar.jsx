@@ -1,12 +1,12 @@
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { 
-  Calendar, 
-  Bell, 
-  User, 
-  BarChart3, 
-  Building2, 
-  DollarSign, 
+import {
+  Calendar,
+  Bell,
+  User,
+  BarChart3,
+  Building2,
+  DollarSign,
   Calculator,
   Menu,
   TrendingUp,
@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
+import { useAuthStore } from '@/store/authStore';
 
 const navigationItems = [
   { label: 'Portfolio Dashboard', icon: BarChart3, path: '/dashboard' },
@@ -25,7 +26,7 @@ const navigationItems = [
   // { label: 'Forecasting', icon: TrendingUp, path: '/forecasting' },
   // { label: 'Labor Analytics', icon: Users, path: '/labor-analytics' },
   // { label: 'On The Books', icon: BookOpen, path: '/on-the-books' },
-  { label: 'Accounting', icon: Calculator, path: '/accounting' },
+  { label: 'Accounting', icon: Calculator, path: '/accounting', allowedRoles: ['admin', 'super_admin'] },
 ];
 
 const additionalItems = [
@@ -35,6 +36,14 @@ const additionalItems = [
 
 const Sidebar = ({ isCollapsed, onToggleCollapse }) => {
   const location = useLocation();
+  const user = useAuthStore(state => state.user);
+  const userRole = user?.role || 'employee';
+
+  // Filter navigation items based on user role
+  const filteredNavigationItems = navigationItems.filter(item => {
+    if (!item.allowedRoles) return true; // No restriction
+    return item.allowedRoles.includes(userRole);
+  });
 
   const renderNavigationItem = (item) => {
     const isActive = location.pathname === item.path;
@@ -142,7 +151,7 @@ const Sidebar = ({ isCollapsed, onToggleCollapse }) => {
       <nav className="flex-1 px-3 py-4">
         <TooltipProvider>
           <ul className="space-y-1">
-            {navigationItems.map(renderNavigationItem)}
+            {filteredNavigationItems.map(renderNavigationItem)}
             
             {/* Separator Line */}
             <li className="py-2">

@@ -17,10 +17,13 @@ import { Search, ArrowLeft, Mail, User, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { userApi } from '@/utils/userApi';
 import { api } from '@/store/api';
+import { useAuthStore } from '@/store/authStore';
 
 const InviteUser = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const currentUser = useAuthStore(state => state.user);
+  const isSuperAdmin = currentUser?.role === 'super_admin';
 
   const [newUser, setNewUser] = useState({
     firstName: '',
@@ -252,6 +255,7 @@ const InviteUser = () => {
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
                   <SelectContent>
+                    {isSuperAdmin && <SelectItem value="super_admin">Super Admin</SelectItem>}
                     <SelectItem value="admin">Admin</SelectItem>
                     <SelectItem value="employee">Employee</SelectItem>
                   </SelectContent>

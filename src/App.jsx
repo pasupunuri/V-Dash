@@ -109,14 +109,26 @@ function MainLayout() {
             <Route path="/night-audit" element={<NightAudit />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/budgeting" element={<Budgeting selectedHotel={selectedHotel} />} />
-            <Route path="/accounting" element={<Accounting />} />
+            <Route path="/accounting" element={
+              <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
+                <Accounting />
+              </ProtectedRoute>
+            } />
             <Route path="/forecasting" element={<Forecasting selectedHotel={selectedHotel} />} />
             <Route path="/labor-analytics" element={<LaborAnalytics selectedHotel={selectedHotel} />} />
             <Route path="/on-the-books" element={<OnTheBooks />} />
             <Route path="/upload-daily-reports" element={<UploadDailyReports />} />
             <Route path="/view-download-reports" element={<ViewDownloadReports />} />
-            <Route path="/manage-users" element={<ManageUsers />} />
-            <Route path="/invite-user" element={<InviteUser />} />
+            <Route path="/manage-users" element={
+              <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
+                <ManageUsers />
+              </ProtectedRoute>
+            } />
+            <Route path="/invite-user" element={
+              <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
+                <InviteUser />
+              </ProtectedRoute>
+            } />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
