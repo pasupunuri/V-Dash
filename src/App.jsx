@@ -23,6 +23,9 @@ import Forecasting from "@/pages/Forecasting";
 import LaborAnalytics from "@/pages/LaborAnalytics";
 import UploadDailyReports from "@/pages/UploadDailyReports";
 import ViewDownloadReports from "@/pages/ViewDownloadReports";
+import ManageUsers from "@/pages/ManageUsers";
+import InviteUser from "@/pages/InviteUser";
+import ReportDataManager from "@/pages/ReportDataManager";
 import { usePropertyStore } from "@/store/propertyStore";
 
 const queryClient = new QueryClient();
@@ -102,17 +105,68 @@ function MainLayout() {
       >
         <div className="p-6 w-full">
           <Routes>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/hotel-dashboard" element={<HotelDashboard selectedHotel={selectedHotel} />} />
-            <Route path="/night-audit" element={<NightAudit />} />
-            <Route path="/reports" element={<Reports />} />
-            <Route path="/budgeting" element={<Budgeting selectedHotel={selectedHotel} />} />
-            <Route path="/accounting" element={<Accounting />} />
-            <Route path="/forecasting" element={<Forecasting selectedHotel={selectedHotel} />} />
-            <Route path="/labor-analytics" element={<LaborAnalytics selectedHotel={selectedHotel} />} />
-            <Route path="/on-the-books" element={<OnTheBooks />} />
+            <Route path="/dashboard" element={
+              <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/hotel-dashboard" element={
+              <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
+                <HotelDashboard selectedHotel={selectedHotel} />
+              </ProtectedRoute>
+            } />
+            <Route path="/night-audit" element={
+              <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
+                <NightAudit />
+              </ProtectedRoute>
+            } />
+            <Route path="/reports" element={
+              <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
+                <Reports />
+              </ProtectedRoute>
+            } />
+            <Route path="/budgeting" element={
+              <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
+                <Budgeting selectedHotel={selectedHotel} />
+              </ProtectedRoute>
+            } />
+            <Route path="/accounting" element={
+              <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
+                <Accounting />
+              </ProtectedRoute>
+            } />
+            <Route path="/forecasting" element={
+              <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
+                <Forecasting selectedHotel={selectedHotel} />
+              </ProtectedRoute>
+            } />
+            <Route path="/labor-analytics" element={
+              <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
+                <LaborAnalytics selectedHotel={selectedHotel} />
+              </ProtectedRoute>
+            } />
+            <Route path="/on-the-books" element={
+              <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
+                <OnTheBooks />
+              </ProtectedRoute>
+            } />
             <Route path="/upload-daily-reports" element={<UploadDailyReports />} />
             <Route path="/view-download-reports" element={<ViewDownloadReports />} />
+            <Route path="/manage-users" element={
+              <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
+                <ManageUsers />
+              </ProtectedRoute>
+            } />
+            <Route path="/invite-user" element={
+              <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
+                <InviteUser />
+              </ProtectedRoute>
+            } />
+            <Route path="/report-data-manager" element={
+              <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
+                <ReportDataManager />
+              </ProtectedRoute>
+            } />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>

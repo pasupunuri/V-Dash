@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
+import { usePropertyStore } from "@/store/propertyStore";
 import { api } from "@/store/api";
 import {
   Dialog,
@@ -27,6 +28,7 @@ const Login = () => {
 
   const navigate = useNavigate();
   const login = useAuthStore(state => state.login);
+  const resetPropertyStore = usePropertyStore(state => state.reset);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -42,9 +44,17 @@ const Login = () => {
       // Store token and user data
       const token = response.data?.access_token;
       const userData = response.data?.user;
-      
+
+      // Reset property store to clear any previous user's data
+      resetPropertyStore();
       login(token, userData);
-      navigate("/dashboard");
+
+      // Redirect based on role - employees go to upload page, others to dashboard
+      if (userData?.role === 'employee') {
+        navigate("/upload-daily-reports");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (err) {
       setError(err.message || "Login failed");
     } finally {
@@ -85,11 +95,11 @@ const Login = () => {
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Email / Username</Label>
               <Input
                 id="email"
-                type="email"
-                placeholder="Enter your email"
+                type="text"
+                placeholder="Enter your email or username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

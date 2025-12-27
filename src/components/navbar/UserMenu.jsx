@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, ChevronDown } from 'lucide-react';
 import { useAuthStore } from "@/store/authStore";
-import "react-day-picker/dist/style.css"; 
+import { usePropertyStore } from "@/store/propertyStore";
+import "react-day-picker/dist/style.css";
 
 const UserMenu = () => {
   const navigate = useNavigate();
@@ -10,9 +11,11 @@ const UserMenu = () => {
   const dropdownRef = useRef(null);
   const logout = useAuthStore(state => state.logout);
   const user = useAuthStore(state => state.user);
+  const resetPropertyStore = usePropertyStore(state => state.reset);
 
   const handleLogout = () => {
     logout();
+    resetPropertyStore(); // Clear cached property data on logout
     navigate("/login");
   };
   // Close dropdown on outside click
@@ -69,14 +72,19 @@ const UserMenu = () => {
 
           {/* <hr className="my-1 border-gray-100" /> */}
 
-          {/* Section 2 */}
+          {/* Section 2 - Only show User Management for admin and super_admin */}
+          {(user?.role === 'admin' || user?.role === 'super_admin') && (
+            <button
+              className="w-full flex items-center gap-2 text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              onClick={() => {
+                setShowDropdown(false);
+                navigate('/manage-users');
+              }}
+            >
+              User Management
+            </button>
+          )}
           {/* <button
-            className="w-full flex items-center gap-2 text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-            onClick={() => setShowDropdown(false)}
-          >
-            User Management
-          </button>
-          <button
             className="w-full flex items-center gap-2 text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
             onClick={() => setShowDropdown(false)}
           >

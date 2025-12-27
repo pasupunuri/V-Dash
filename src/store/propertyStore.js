@@ -36,9 +36,11 @@ export const usePropertyStore = create((set, get) => ({
 
       set({ properties: data, loading: false, initialized: true });
 
-      // Initialize selectedHotel if not set
+      // Initialize selectedHotel if not set OR if current selection is not in available properties
       const currentSelected = get().selectedHotel;
-      if ((!currentSelected || currentSelected.trim() === '') && data.length > 0) {
+      const isCurrentSelectionValid = data.some(p => p?.name === currentSelected);
+
+      if ((!currentSelected || currentSelected.trim() === '' || !isCurrentSelectionValid) && data.length > 0) {
         const defaultHotel = data[0]?.name || '';
         localStorage.setItem('selectedHotel', defaultHotel);
         set({ selectedHotel: defaultHotel });

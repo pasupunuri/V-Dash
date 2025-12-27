@@ -1,40 +1,51 @@
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { 
-  Calendar, 
-  Bell, 
-  User, 
-  BarChart3, 
-  Building2, 
-  DollarSign, 
+import {
+  Calendar,
+  Bell,
+  User,
+  BarChart3,
+  Building2,
+  DollarSign,
   Calculator,
   Menu,
   TrendingUp,
   BookOpen,
   Users,
   Upload,
-  Download
+  Download,
+  FileSpreadsheet
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
+import { useAuthStore } from '@/store/authStore';
 
 const navigationItems = [
-  { label: 'Portfolio Dashboard', icon: BarChart3, path: '/dashboard' },
-  { label: 'Hotel Dashboard', icon: Building2, path: '/hotel-dashboard' },
+  { label: 'Portfolio Dashboard', icon: BarChart3, path: '/dashboard', allowedRoles: ['admin', 'super_admin'] },
+  { label: 'Hotel Dashboard', icon: Building2, path: '/hotel-dashboard', allowedRoles: ['admin', 'super_admin'] },
   // { label: 'Budgeting', icon: DollarSign, path: '/budgeting' },
   // { label: 'Forecasting', icon: TrendingUp, path: '/forecasting' },
   // { label: 'Labor Analytics', icon: Users, path: '/labor-analytics' },
   // { label: 'On The Books', icon: BookOpen, path: '/on-the-books' },
-  // { label: 'Accounting', icon: Calculator, path: '/accounting' },
+  { label: 'Accounting', icon: Calculator, path: '/accounting', allowedRoles: ['admin', 'super_admin'] },
+  { label: 'Report Data Manager', icon: FileSpreadsheet, path: '/report-data-manager', allowedRoles: ['admin', 'super_admin'] },
 ];
 
 const additionalItems = [
-  // { label: 'Upload Daily Reports', icon: Upload, path: '/upload-daily-reports' },
-  // { label: 'View/Download Reports', icon: Download, path: '/view-download-reports' },
+  { label: 'Upload Daily Reports', icon: Upload, path: '/upload-daily-reports' },  // Available to all roles
+  // { label: 'View/Download Reports', icon: Download, path: '/view-download-reports' },  // Available to all roles
 ];
 
 const Sidebar = ({ isCollapsed, onToggleCollapse }) => {
   const location = useLocation();
+  const user = useAuthStore(state => state.user);
+  const userRole = user?.role || 'employee';
+
+  // Filter navigation items based on user role
+  const filteredNavigationItems = navigationItems.filter(item => {
+    if (!item.allowedRoles) return true; // No restriction
+    return item.allowedRoles.includes(userRole);
+  });
 
   const renderNavigationItem = (item) => {
     const isActive = location.pathname === item.path;
@@ -142,13 +153,15 @@ const Sidebar = ({ isCollapsed, onToggleCollapse }) => {
       <nav className="flex-1 px-3 py-4">
         <TooltipProvider>
           <ul className="space-y-1">
-            {navigationItems.map(renderNavigationItem)}
-            
-            {/* Separator Line */}
-            <li className="py-2">
-              <div className="border-t border-slate-700/50 mx-2" />
-            </li>
-            
+            {filteredNavigationItems.map(renderNavigationItem)}
+
+            {/* Separator Line - only show if there are navigation items above */}
+            {filteredNavigationItems.length > 0 && (
+              <li className="py-2">
+                <div className="border-t border-slate-700/50 mx-2" />
+              </li>
+            )}
+
             {additionalItems.map(renderNavigationItem)}
           </ul>
         </TooltipProvider>
