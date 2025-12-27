@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
+import { usePropertyStore } from "@/store/propertyStore";
 import { api } from "@/store/api";
 import {
   Dialog,
@@ -27,6 +28,7 @@ const Login = () => {
 
   const navigate = useNavigate();
   const login = useAuthStore(state => state.login);
+  const resetPropertyStore = usePropertyStore(state => state.reset);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -43,6 +45,8 @@ const Login = () => {
       const token = response.data?.access_token;
       const userData = response.data?.user;
 
+      // Reset property store to clear any previous user's data
+      resetPropertyStore();
       login(token, userData);
 
       // Redirect based on role - employees go to upload page, others to dashboard

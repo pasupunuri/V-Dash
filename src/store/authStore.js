@@ -15,6 +15,7 @@ export const useAuthStore = create((set) => ({
   logout: () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
+    localStorage.removeItem('selectedHotel');  // Clear selected property on logout
     set({ token: null, user: null });
   },
 

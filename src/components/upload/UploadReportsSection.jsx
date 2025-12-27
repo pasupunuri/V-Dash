@@ -23,12 +23,19 @@ function UploadReportsSection({ selectedDate }) {
   // Track existing file info per report_id
   const [fileInfoByReportId, setFileInfoByReportId] = React.useState({});
 
-  // Accounting-style property_id derivation (same as BusinessDetails.jsx)
+  // Property_id derivation - uses selected property or falls back to first available
   const propertyId = React.useMemo(() => {
-    const match = Array.isArray(properties)
-      ? properties.find((p) => p?.name === selectedPropertyName)
-      : null;
-    return match?.id || match?._id || '68b6cb3a6c280bfb1ac0083c';
+    if (!Array.isArray(properties) || properties.length === 0) {
+      return null;
+    }
+    // Try to find selected property
+    const match = properties.find((p) => p?.name === selectedPropertyName);
+    if (match) {
+      return match?.id || match?._id || null;
+    }
+    // Fall back to first available property (important for employees with single property)
+    const firstProperty = properties[0];
+    return firstProperty?.id || firstProperty?._id || null;
   }, [properties, selectedPropertyName]);
 
   React.useEffect(() => {
