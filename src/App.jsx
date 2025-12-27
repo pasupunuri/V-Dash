@@ -25,6 +25,7 @@ import UploadDailyReports from "@/pages/UploadDailyReports";
 import ViewDownloadReports from "@/pages/ViewDownloadReports";
 import ManageUsers from "@/pages/ManageUsers";
 import InviteUser from "@/pages/InviteUser";
+import ReportDataManager from "@/pages/ReportDataManager";
 import { usePropertyStore } from "@/store/propertyStore";
 
 const queryClient = new QueryClient();
@@ -159,6 +160,11 @@ function MainLayout() {
             <Route path="/invite-user" element={
               <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
                 <InviteUser />
+              </ProtectedRoute>
+            } />
+            <Route path="/report-data-manager" element={
+              <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
+                <ReportDataManager />
               </ProtectedRoute>
             } />
             <Route path="*" element={<NotFound />} />

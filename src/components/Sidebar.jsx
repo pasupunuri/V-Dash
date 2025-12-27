@@ -13,7 +13,8 @@ import {
   BookOpen,
   Users,
   Upload,
-  Download
+  Download,
+  FileSpreadsheet
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
@@ -27,6 +28,7 @@ const navigationItems = [
   // { label: 'Labor Analytics', icon: Users, path: '/labor-analytics' },
   // { label: 'On The Books', icon: BookOpen, path: '/on-the-books' },
   { label: 'Accounting', icon: Calculator, path: '/accounting', allowedRoles: ['admin', 'super_admin'] },
+  { label: 'Report Data Manager', icon: FileSpreadsheet, path: '/report-data-manager', allowedRoles: ['admin', 'super_admin'] },
 ];
 
 const additionalItems = [
