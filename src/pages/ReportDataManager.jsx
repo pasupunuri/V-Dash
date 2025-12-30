@@ -199,7 +199,7 @@ const ReportDataManager = () => {
 
       if (isCreateMode) {
         // Create new record
-        await api.post('report-data', {
+        await api.post('report-data/create', {
           property_id: selectedPropertyId,
           date: selectedDate,
           report_type: 'daily_report',
