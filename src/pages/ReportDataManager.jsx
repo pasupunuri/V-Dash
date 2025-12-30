@@ -202,7 +202,7 @@ const ReportDataManager = () => {
         await api.post('report-data/create', {
           property_id: selectedPropertyId,
           date: selectedDate,
-          report_type: 'daily_report',
+          report_type: 'revenue',
           fields: editedFields,
         });
         toast({
