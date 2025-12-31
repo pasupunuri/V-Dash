@@ -1,10 +1,12 @@
 import { api } from '@/store/api';
 
 export const userApi = {
-  // Get all users (admin only)
-  getUsers: async () => {
-    const response = await api.get('auth/users');
-    return response.data || [];
+  // Get users with pagination and search (admin only)
+  getUsers: async (page = 1, pageSize = 20, search = '') => {
+    const response = await api.get('auth/users', {
+      params: { page, page_size: pageSize, search }
+    });
+    return response.data || { users: [], total: 0, page: 1, page_size: pageSize, total_pages: 0 };
   },
 
   // Create a new user (admin only)
@@ -40,6 +42,21 @@ export const userApi = {
   // Get current user info
   getCurrentUser: async () => {
     const response = await api.get('auth/me');
+    return response.data;
+  },
+
+  // Update user password (admin only)
+  updateUserPassword: async (userId, newPassword) => {
+    const response = await api.patch(`auth/users/${userId}/password`, { new_password: newPassword });
+    return response.data;
+  },
+
+  // Update own password (any user)
+  updateOwnPassword: async (currentPassword, newPassword) => {
+    const response = await api.patch('auth/me/password', {
+      current_password: currentPassword,
+      new_password: newPassword,
+    });
     return response.data;
   },
 };

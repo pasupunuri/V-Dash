@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,7 +14,10 @@ import {
   User,
   MoreHorizontal,
   UserCheck,
-  UserX
+  UserX,
+  ChevronLeft,
+  ChevronRight,
+  Key,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -55,19 +58,33 @@ const ManageUsers = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [users, setUsers] = useState([]);
   const [properties, setProperties] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [tableLoading, setTableLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [activeCount, setActiveCount] = useState(0);
+  const [inactiveCount, setInactiveCount] = useState(0);
+  const pageSize = 20;
   const [editFormData, setEditFormData] = useState({
     full_name: '',
     role: '',
     phone: '',
   });
+  const [showChangePasswordDialog, setShowChangePasswordDialog] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
 
   // Load users and properties from API
-  const loadUsers = async () => {
+  const loadUsers = async (page = currentPage, search = searchQuery) => {
     try {
-      setLoading(true);
-      const fetchedUsers = await userApi.getUsers();
-      setUsers(fetchedUsers);
+      setTableLoading(true);
+      const response = await userApi.getUsers(page, pageSize, search);
+      setUsers(response.users || []);
+      setTotalUsers(response.total || 0);
+      setTotalPages(response.total_pages || 0);
+      setCurrentPage(response.page || 1);
+      setActiveCount(response.active_count || 0);
+      setInactiveCount(response.inactive_count || 0);
     } catch (error) {
       toast({
         title: 'Error',
@@ -75,7 +92,8 @@ const ManageUsers = () => {
         variant: 'destructive',
       });
     } finally {
-      setLoading(false);
+      setTableLoading(false);
+      setInitialLoading(false);
     }
   };
 
@@ -92,16 +110,24 @@ const ManageUsers = () => {
     }
   };
 
+  const isInitialMount = useRef(true);
+
   useEffect(() => {
-    loadUsers();
+    loadUsers(1, '');
     loadProperties();
   }, []);
 
-  const filteredUsers = users.filter(user =>
-    (user.full_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (user.email || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (user.role || '').toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Debounced search effect - skip initial mount
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    const timeoutId = setTimeout(() => {
+      loadUsers(1, searchQuery);
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
 
   const handleEditUser = (user) => {
     setSelectedUser(user);
@@ -129,6 +155,42 @@ const ManageUsers = () => {
       toast({
         title: 'Error',
         description: error.message || 'Failed to update user',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleChangePassword = (user) => {
+    setSelectedUser(user);
+    setNewPassword('');
+    setShowChangePasswordDialog(true);
+  };
+
+  const handleUpdatePassword = async () => {
+    if (!selectedUser || !newPassword) return;
+
+    if (newPassword.length < 6) {
+      toast({
+        title: 'Error',
+        description: 'Password must be at least 6 characters',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      await userApi.updateUserPassword(selectedUser._id, newPassword);
+      toast({
+        title: 'Success',
+        description: 'Password updated successfully',
+      });
+      setShowChangePasswordDialog(false);
+      setSelectedUser(null);
+      setNewPassword('');
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to update password',
         variant: 'destructive',
       });
     }
@@ -208,7 +270,7 @@ const ManageUsers = () => {
     }));
   };
 
-  if (loading) {
+  if (initialLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <p className="text-gray-500">Loading users...</p>
@@ -244,9 +306,9 @@ const ManageUsers = () => {
               />
             </div>
             <div className="flex gap-4 text-sm text-gray-600">
-              <span>Total Users: {users.length}</span>
-              <span>Active: {users.filter(u => u.status === 'Active').length}</span>
-              <span>Inactive: {users.filter(u => u.status === 'Inactive').length}</span>
+              <span>Total Users: {totalUsers}</span>
+              <span>Active: {activeCount}</span>
+              <span>Inactive: {inactiveCount}</span>
             </div>
           </div>
         </CardContent>
@@ -258,7 +320,17 @@ const ManageUsers = () => {
           <CardTitle>Users</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-1">
+          <div className="space-y-1 relative">
+            {/* Table Loading Overlay */}
+            {tableLoading && (
+              <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-10 rounded-lg">
+                <div className="flex items-center gap-2 text-gray-600">
+                  <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                  <span>Loading...</span>
+                </div>
+              </div>
+            )}
+
             {/* Table Header */}
             <div className="grid grid-cols-12 gap-4 px-4 py-2 text-sm font-medium text-gray-500 border-b">
               <div className="col-span-4">User</div>
@@ -269,7 +341,7 @@ const ManageUsers = () => {
             </div>
 
             {/* Table Rows */}
-            {filteredUsers.map((user) => (
+            {users.map((user) => (
               <div key={user._id} className="grid grid-cols-12 gap-4 px-4 py-3 hover:bg-gray-50 transition-colors rounded-lg">
                 <div className="col-span-4 flex items-center gap-3">
                   <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
@@ -319,6 +391,10 @@ const ManageUsers = () => {
                         <Edit className="w-4 h-4 mr-2" />
                         Edit User
                       </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleChangePassword(user)}>
+                        <Key className="w-4 h-4 mr-2" />
+                        Change Password
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleAssignProperties(user)}>
                         <Building className="w-4 h-4 mr-2" />
                         Manage Properties
@@ -351,12 +427,67 @@ const ManageUsers = () => {
               </div>
             ))}
 
-            {filteredUsers.length === 0 && (
+            {users.length === 0 && (
               <div className="text-center py-8 text-gray-500">
                 No users found matching your search.
               </div>
             )}
           </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-6 pt-4 border-t">
+              <div className="text-sm text-gray-600">
+                Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, totalUsers)} of {totalUsers} users
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => loadUsers(currentPage - 1)}
+                  disabled={currentPage === 1 || tableLoading}
+                >
+                  <ChevronLeft className="w-4 h-4 mr-1" />
+                  Previous
+                </Button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(page => {
+                      // Show first, last, current, and adjacent pages
+                      return page === 1 ||
+                             page === totalPages ||
+                             Math.abs(page - currentPage) <= 1;
+                    })
+                    .map((page, index, arr) => (
+                      <React.Fragment key={page}>
+                        {index > 0 && arr[index - 1] !== page - 1 && (
+                          <span className="px-2 text-gray-400">...</span>
+                        )}
+                        <Button
+                          variant={currentPage === page ? "default" : "outline"}
+                          size="sm"
+                          className="w-8 h-8 p-0"
+                          onClick={() => loadUsers(page)}
+                          disabled={tableLoading}
+                        >
+                          {page}
+                        </Button>
+                      </React.Fragment>
+                    ))
+                  }
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => loadUsers(currentPage + 1)}
+                  disabled={currentPage === totalPages || tableLoading}
+                >
+                  Next
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -463,6 +594,44 @@ const ManageUsers = () => {
             </Button>
             <Button onClick={handleUpdateProperties}>
               Update Assignments
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Change Password Dialog */}
+      <Dialog open={showChangePasswordDialog} onOpenChange={setShowChangePasswordDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change Password</DialogTitle>
+          </DialogHeader>
+
+          {selectedUser && (
+            <div className="space-y-4">
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <p className="font-medium">{selectedUser.full_name || selectedUser.email}</p>
+                <p className="text-sm text-gray-600">{selectedUser.email}</p>
+              </div>
+
+              <div>
+                <Label>New Password</Label>
+                <Input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Enter new password"
+                />
+                <p className="text-xs text-gray-500 mt-1">Minimum 6 characters</p>
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-end gap-3 mt-6">
+            <Button variant="outline" onClick={() => setShowChangePasswordDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdatePassword} disabled={!newPassword || newPassword.length < 6}>
+              Update Password
             </Button>
           </div>
         </DialogContent>

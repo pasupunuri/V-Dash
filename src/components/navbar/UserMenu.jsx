@@ -1,13 +1,32 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, ChevronDown } from 'lucide-react';
+import { User, ChevronDown, Key } from 'lucide-react';
 import { useAuthStore } from "@/store/authStore";
 import { usePropertyStore } from "@/store/propertyStore";
+import { userApi } from "@/utils/userApi";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import "react-day-picker/dist/style.css";
 
 const UserMenu = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showChangePasswordDialog, setShowChangePasswordDialog] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [changingPassword, setChangingPassword] = useState(false);
   const dropdownRef = useRef(null);
   const logout = useAuthStore(state => state.logout);
   const user = useAuthStore(state => state.user);
@@ -17,6 +36,38 @@ const UserMenu = () => {
     logout();
     resetPropertyStore(); // Clear cached property data on logout
     navigate("/login");
+  };
+
+  const handleChangePassword = async () => {
+    // Validation
+    if (!passwordData.currentPassword) {
+      toast({ title: 'Error', description: 'Current password is required', variant: 'destructive' });
+      return;
+    }
+    if (!passwordData.newPassword || passwordData.newPassword.length < 6) {
+      toast({ title: 'Error', description: 'New password must be at least 6 characters', variant: 'destructive' });
+      return;
+    }
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      toast({ title: 'Error', description: 'New passwords do not match', variant: 'destructive' });
+      return;
+    }
+
+    try {
+      setChangingPassword(true);
+      await userApi.updateOwnPassword(passwordData.currentPassword, passwordData.newPassword);
+      toast({ title: 'Success', description: 'Password updated successfully' });
+      setShowChangePasswordDialog(false);
+      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to update password',
+        variant: 'destructive',
+      });
+    } finally {
+      setChangingPassword(false);
+    }
   };
   // Close dropdown on outside click
   useEffect(() => {
@@ -99,13 +150,17 @@ const UserMenu = () => {
 
           <hr className="my-1 border-gray-100" /> */}
 
-          {/* Section 3 */}
-          {/* <button
+          {/* Change Password */}
+          <button
             className="w-full flex items-center gap-2 text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-            onClick={() => setShowDropdown(false)}
+            onClick={() => {
+              setShowDropdown(false);
+              setShowChangePasswordDialog(true);
+            }}
           >
+            <Key className="w-4 h-4" />
             Change Password
-          </button> */}
+          </button>
 
           <hr className="my-1 border-gray-100" />
 
@@ -120,6 +175,63 @@ const UserMenu = () => {
           </button>
         </div>
       )}
+
+      {/* Change Password Dialog */}
+      <Dialog open={showChangePasswordDialog} onOpenChange={setShowChangePasswordDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change Password</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label>Current Password</Label>
+              <Input
+                type="password"
+                value={passwordData.currentPassword}
+                onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                placeholder="Enter current password"
+              />
+            </div>
+
+            <div>
+              <Label>New Password</Label>
+              <Input
+                type="password"
+                value={passwordData.newPassword}
+                onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                placeholder="Enter new password"
+              />
+              <p className="text-xs text-gray-500 mt-1">Minimum 6 characters</p>
+            </div>
+
+            <div>
+              <Label>Confirm New Password</Label>
+              <Input
+                type="password"
+                value={passwordData.confirmPassword}
+                onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                placeholder="Confirm new password"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 mt-6">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowChangePasswordDialog(false);
+                setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+              }}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleChangePassword} disabled={changingPassword}>
+              {changingPassword ? 'Updating...' : 'Update Password'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
