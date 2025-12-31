@@ -28,6 +28,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/store/api';
 import { useAuthStore } from '@/store/authStore';
+import { usePropertyStore } from '@/store/propertyStore';
 import AuditLogModal from '@/components/report-data/AuditLogModal';
 import CalculateMTDModal from '@/components/report-data/CalculateMTDModal';
 import FieldTable from '@/components/report-data/FieldTable';
@@ -36,10 +37,12 @@ const ReportDataManager = () => {
   const { toast } = useToast();
   const currentUser = useAuthStore(state => state.user);
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'super_admin';
+  const selectedHotelFromStore = usePropertyStore(state => state.selectedHotel);
 
   // State
   const [properties, setProperties] = useState([]);
   const [selectedPropertyId, setSelectedPropertyId] = useState('');
+  const [initialPropertySet, setInitialPropertySet] = useState(false);
   const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [fieldGroups, setFieldGroups] = useState([]);
   const [reportData, setReportData] = useState(null);
@@ -61,8 +64,21 @@ const ReportDataManager = () => {
       const response = await api.get('properties');
       const activeProperties = (response.data || []).filter(p => p.active);
       setProperties(activeProperties);
-      if (activeProperties.length > 0 && !selectedPropertyId) {
-        setSelectedPropertyId(activeProperties[0]._id);
+
+      // Pre-select property from header selection (by name) or default to first
+      if (activeProperties.length > 0 && !initialPropertySet) {
+        let propertyToSelect = activeProperties[0];
+
+        // Try to find property matching the header selection
+        if (selectedHotelFromStore) {
+          const matchingProperty = activeProperties.find(p => p.name === selectedHotelFromStore);
+          if (matchingProperty) {
+            propertyToSelect = matchingProperty;
+          }
+        }
+
+        setSelectedPropertyId(propertyToSelect._id);
+        setInitialPropertySet(true);
       }
     } catch (error) {
       toast({
@@ -120,6 +136,16 @@ const ReportDataManager = () => {
     loadProperties();
     loadFieldGroups();
   }, []);
+
+  // Sync with header property selection changes
+  useEffect(() => {
+    if (!selectedHotelFromStore || properties.length === 0) return;
+
+    const matchingProperty = properties.find(p => p.name === selectedHotelFromStore);
+    if (matchingProperty && matchingProperty._id !== selectedPropertyId) {
+      setSelectedPropertyId(matchingProperty._id);
+    }
+  }, [selectedHotelFromStore, properties]);
 
   // Load data when property or date changes
   useEffect(() => {

@@ -30,6 +30,10 @@ export const usePageTitle = () => {
         return 'Night Audit Reports Upload';
       case '/view-download-reports':
         return 'View / Download Night Audit Reports';
+      case '/report-data-manager':
+        return 'Report Data Manager';
+      case '/manage-users':
+        return 'Manage Users';
       default:
         return 'Portfolio Dashboard';
     }
