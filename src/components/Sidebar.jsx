@@ -28,7 +28,7 @@ const navigationItems = [
   // { label: 'Labor Analytics', icon: Users, path: '/labor-analytics' },
   // { label: 'On The Books', icon: BookOpen, path: '/on-the-books' },
   { label: 'Accounting', icon: Calculator, path: '/accounting', allowedRoles: ['admin', 'super_admin'] },
-  { label: 'Report Data Manager', icon: FileSpreadsheet, path: '/report-data-manager', allowedRoles: ['admin', 'super_admin'] },
+  // { label: 'Report Data Manager', icon: FileSpreadsheet, path: '/report-data-manager', allowedRoles: ['admin', 'super_admin'] },
 ];
 
 const additionalItems = [

@@ -57,6 +57,10 @@ function HotelKPICardsSection({
     }
   };
   useEffect(() => {
+    // Only fetch when we have a valid propertyId
+    if (!propertyId) {
+      return;
+    }
     setKpiData(null);
     fetchApiData();
   }, [selectedHotel, propertyId, selectedDate]);
