@@ -123,8 +123,8 @@ const UserMenu = () => {
 
           {/* <hr className="my-1 border-gray-100" /> */}
 
-          {/* Section 2 - Only show User Management for admin and super_admin */}
-          {(user?.role === 'admin' || user?.role === 'super_admin') && (
+          {/* Section 2 - Only show User Management for super_admin */}
+          {user?.role === 'super_admin' && (
             <button
               className="w-full flex items-center gap-2 text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
               onClick={() => {

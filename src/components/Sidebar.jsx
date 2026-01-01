@@ -34,6 +34,7 @@ const navigationItems = [
 const additionalItems = [
   { label: 'Upload Daily Reports', icon: Upload, path: '/upload-daily-reports' },  // Available to all roles
   // { label: 'View/Download Reports', icon: Download, path: '/view-download-reports' },  // Available to all roles
+  { label: 'User Management', icon: Users, path: '/manage-users', allowedRoles: ['super_admin'] },  // Super admin only
 ];
 
 const Sidebar = ({ isCollapsed, onToggleCollapse }) => {
@@ -43,6 +44,12 @@ const Sidebar = ({ isCollapsed, onToggleCollapse }) => {
 
   // Filter navigation items based on user role
   const filteredNavigationItems = navigationItems.filter(item => {
+    if (!item.allowedRoles) return true; // No restriction
+    return item.allowedRoles.includes(userRole);
+  });
+
+  // Filter additional items based on user role
+  const filteredAdditionalItems = additionalItems.filter(item => {
     if (!item.allowedRoles) return true; // No restriction
     return item.allowedRoles.includes(userRole);
   });
@@ -162,7 +169,7 @@ const Sidebar = ({ isCollapsed, onToggleCollapse }) => {
               </li>
             )}
 
-            {additionalItems.map(renderNavigationItem)}
+            {filteredAdditionalItems.map(renderNavigationItem)}
           </ul>
         </TooltipProvider>
       </nav>

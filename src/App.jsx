@@ -153,12 +153,12 @@ function MainLayout() {
             <Route path="/upload-daily-reports" element={<UploadDailyReports />} />
             <Route path="/view-download-reports" element={<ViewDownloadReports />} />
             <Route path="/manage-users" element={
-              <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
+              <ProtectedRoute allowedRoles={['super_admin']}>
                 <ManageUsers />
               </ProtectedRoute>
             } />
             <Route path="/invite-user" element={
-              <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
+              <ProtectedRoute allowedRoles={['super_admin']}>
                 <InviteUser />
               </ProtectedRoute>
             } />
